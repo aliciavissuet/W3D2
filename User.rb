@@ -71,4 +71,8 @@ class User
     Question.find_by_author(self.id)
   end
 
+  def followed_questions
+    Question_follow.followed_questions_for_user_id(self.id)
+  end
+
 end

@@ -3,7 +3,7 @@ require_relative 'QuestionsDatabase'
 class Question
   attr_accessor :title, :body, :user_id
   attr_reader :id
-  
+
   def self.all
     data = QuestionsDBConnection.instance.execute('SELECT * FROM questions')
     data.map {|datum| Question.new(datum)}
@@ -71,4 +71,7 @@ class Question
     Reply.find_by_question_id(self.id)
   end
   
+  def followers
+    Question_follow.followers_for_question_id(self.id)
+  end
 end

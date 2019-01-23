@@ -1,8 +1,9 @@
 require_relative "QuestionsDatabase"
+require_relative 'User'
 
 class Reply
-  attr_reader :id, :question_id, :parent_reply_id, :user_id
-  attr_accessor :body
+  attr_reader :id, :question_id, :user_id
+  attr_accessor :body, :parent_reply_id
 
   def self.all
     data = QuestionsDBConnection.instance.execute('SELECT * FROM replies')
@@ -70,7 +71,7 @@ class Reply
 
   def update
     raise "#{self} not in db" unless @id
-    QuestionsDBConnection.instance.execute(<<-SQL, @question_id, @parent_reply_id, @user_id, @body)
+    QuestionsDBConnection.instance.execute(<<-SQL, @question_id, @parent_reply_id, @user_id, @body, @id)
     UPDATE
       replies
     SET
@@ -80,5 +81,60 @@ class Reply
     SQL
   end
 
+  def author
+    id = self.user_id
+    data = QuestionsDBConnection.instance.execute <<-SQL
+    SELECT
+      *
+    FROM
+      users
+    WHERE
+      users.id = #{id}
+    SQL
+    User.new(data[0])
+  end
+
+  def question
+    id = self.question_id
+    data = QuestionsDBConnection.instance.execute <<-SQL
+    SELECT
+      *
+    FROM
+      questions
+    WHERE
+      questions.id = #{id}
+    SQL
+    Question.new(data[0])
+  end
+
+  def parent_reply
+    id = self.parent_reply_id
+    data = QuestionsDBConnection.instance.execute <<-SQL
+    SELECT
+      *
+    FROM
+      replies
+    WHERE
+      replies.id = #{id}
+    SQL
+    Reply.new(data[0])
+  end
+
+  def child_replies
+    result = []
+    parent_reply_id = self.id
+    data = QuestionsDBConnection.instance.execute <<-SQL
+    SELECT
+      *
+    FROM
+      replies
+    WHERE
+      replies.parent_reply_id = #{parent_reply_id}
+    SQL
+    
+    data.each { |reply| result << Reply.new(reply) }
+    result
+  end
+  
 end
 
