@@ -56,7 +56,8 @@ class Question_follow
     HAVING
       COUNT(questions.id) >= #{n}
     SQL
-    
+    data.each { |question| result << Question.new(question) }
+    result
   end
 
   def initialize(options)

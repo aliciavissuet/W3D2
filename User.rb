@@ -75,4 +75,22 @@ class User
     Question_follow.followed_questions_for_user_id(self.id)
   end
 
+  def liked_questions
+    Question_like.liked_questions_for_user_id(self.id)
+  end
+
+  def avg_karma
+    data = QuestionsDBConnection.instance.execute <<-SQL
+    SELECT
+      COUNT(question_likes.id) / CAST(COUNT (DISTINCT questions.id) AS FLOAT) 
+    FROM  
+      questions
+    JOIN
+      question_likes ON questions.id = question_likes.id
+    WHERE
+      questions.user_id = #{self.id}
+    SQL
+    data
+  end
+
 end

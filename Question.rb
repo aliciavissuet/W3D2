@@ -37,6 +37,14 @@ class Question
     ques
   end
 
+  def self.most_liked(n)
+    Question_like.most_liked_questions(n)
+  end
+
+  def self.most_followed(n)
+    Question_follow.most_followed_questions(n)
+  end
+
   def initialize(options)
     @id = options['id']
     @title = options['title']
@@ -74,4 +82,13 @@ class Question
   def followers
     Question_follow.followers_for_question_id(self.id)
   end
+
+  def likers
+    Question_like.likers_for_question_id(self.id)
+  end
+
+  def num_likes
+    Question_like.num_likes_for_question_id(self.id)
+  end
+
 end
